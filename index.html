@@ -1,1 +1,457 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Workout Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen font-sans antialiased pb-24">
 
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-gray-900/90 backdrop-blur-md border-b border-gray-800 px-4 py-3">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-500 to-emerald-400 flex items-center justify-center text-gray-950 font-black text-xl shadow-lg shadow-green-500/20">
+                    <i class="fa-solid fa-dumbbell"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">FITNESS TRACKER</h1>
+                    <p class="text-xs text-gray-400 font-medium">Daily Gym Schedule</p>
+                </div>
+            </div>
+            <button onclick="openTimerModal()" class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-green-400 px-3 py-1.5 rounded-lg border border-gray-700 transition active:scale-95">
+                <i class="fa-solid fa-stopwatch text-sm"></i>
+                <span id="timerDisplayNav" class="text-xs font-mono font-bold">Rest Timer</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 pt-4">
+
+        <!-- Weekly Progress Card -->
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 mb-5 shadow-xl">
+            <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span class="text-sm font-semibold text-gray-300">Overall Weekly Progress</span>
+                </div>
+                <span id="overallPercentage" class="text-xs font-bold text-green-400 bg-green-950/60 border border-green-800/50 px-2.5 py-0.5 rounded-full">0%</span>
+            </div>
+            <div class="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                <div id="overallProgressBar" class="bg-gradient-to-r from-green-500 to-emerald-400 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Day Tabs (Monday to Sunday) -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-6 pb-1">
+            <button onclick="switchDay('mon')" id="tab-mon" class="day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 text-center font-medium transition flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider text-gray-400">Mon</span>
+                <span class="text-xs font-bold mt-0.5">Day 1</span>
+            </button>
+            <button onclick="switchDay('tue')" id="tab-tue" class="day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 text-center font-medium transition flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider text-gray-400">Tue</span>
+                <span class="text-xs font-bold mt-0.5">Day 2</span>
+            </button>
+            <button onclick="switchDay('wed')" id="tab-wed" class="day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 text-center font-medium transition flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider text-gray-400">Wed</span>
+                <span class="text-xs font-bold mt-0.5">Day 3</span>
+            </button>
+            <button onclick="switchDay('thu')" id="tab-thu" class="day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 text-center font-medium transition flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider text-gray-400">Thu</span>
+                <span class="text-xs font-bold mt-0.5">Day 4</span>
+            </button>
+            <button onclick="switchDay('fri')" id="tab-fri" class="day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 text-center font-medium transition flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider text-gray-400">Fri</span>
+                <span class="text-xs font-bold mt-0.5">Day 5</span>
+            </button>
+            <button onclick="switchDay('sat')" id="tab-sat" class="day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 text-center font-medium transition flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider text-gray-400">Sat</span>
+                <span class="text-xs font-bold mt-0.5">Day 6</span>
+            </button>
+            <button onclick="switchDay('sun')" id="tab-sun" class="day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 text-center font-medium transition flex flex-col items-center">
+                <span class="text-[10px] uppercase tracking-wider text-gray-400">Sun</span>
+                <span class="text-xs font-bold mt-0.5">Rest</span>
+            </button>
+        </div>
+
+        <!-- Day Header Details -->
+        <div class="flex justify-between items-end mb-4 bg-gray-900/60 border border-gray-800/80 p-4 rounded-xl">
+            <div>
+                <h2 id="currentDayTitle" class="text-xl font-black tracking-wide text-white">Day 1 - Chest + Triceps</h2>
+                <p id="currentDaySubtitle" class="text-xs text-gray-400 mt-0.5">Focus on form and controlled movements</p>
+            </div>
+            <button onclick="resetCurrentDay()" class="text-xs text-rose-400 hover:text-rose-300 font-semibold bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/50 px-3 py-1.5 rounded-lg transition">
+                <i class="fa-solid fa-rotate-left mr-1"></i> Reset Day
+            </button>
+        </div>
+
+        <!-- Exercises Container -->
+        <div id="exerciseList" class="space-y-4">
+            <!-- Dynamic Content -->
+        </div>
+
+        <!-- Global Reset Button -->
+        <div class="mt-8 mb-4 text-center">
+            <button onclick="resetAllDays()" class="text-xs text-gray-500 hover:text-gray-300 underline font-medium transition">
+                Reset Entire Week Data
+            </button>
+        </div>
+    </main>
+
+    <!-- Rest Timer Modal -->
+    <div id="timerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl relative">
+            <button onclick="closeTimerModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <i class="fa-solid fa-stopwatch text-3xl text-green-400 mb-2"></i>
+            <h3 class="text-lg font-bold text-white mb-4">Rest Timer</h3>
+            
+            <div class="text-5xl font-mono font-black text-green-400 my-4 tracking-wider" id="timerClock">00:00</div>
+
+            <div class="grid grid-cols-3 gap-2 mb-6">
+                <button onclick="startPresetTimer(30)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 py-2 rounded-xl text-sm font-semibold transition">30s</button>
+                <button onclick="startPresetTimer(60)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 py-2 rounded-xl text-sm font-semibold transition">60s</button>
+                <button onclick="startPresetTimer(90)" class="bg-gray-800 hover:bg-gray-700 border border-gray-700 py-2 rounded-xl text-sm font-semibold transition">90s</button>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="stopTimer()" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition">Stop</button>
+                <button onclick="closeTimerModal()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 font-bold py-2.5 rounded-xl transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript logic -->
+    <script>
+        const workoutData = {
+            mon: {
+                title: "Day 1 – Chest + Triceps",
+                subtitle: "Monday Workout",
+                exercises: [
+                    { id: "mon_1", name: "Bench Press", sets: 4, target: "8–10 reps" },
+                    { id: "mon_2", name: "Incline Dumbbell Press", sets: 3, target: "10 reps" },
+                    { id: "mon_3", name: "Chest Fly Machine / Dumbbells", sets: 3, target: "12 reps" },
+                    { id: "mon_4", name: "Tricep Pushdown", sets: 3, target: "12 reps" },
+                    { id: "mon_5", name: "Overhead Tricep Extension", sets: 3, target: "12 reps" },
+                    { id: "mon_6", name: "Push-ups", sets: 2, target: "Till Failure" }
+                ]
+            },
+            tue: {
+                title: "Day 2 – Back + Biceps",
+                subtitle: "Tuesday Workout",
+                exercises: [
+                    { id: "tue_1", name: "Lat Pulldown", sets: 4, target: "10 reps" },
+                    { id: "tue_2", name: "Seated Cable Row", sets: 3, target: "10 reps" },
+                    { id: "tue_3", name: "Dumbbell Row", sets: 3, target: "12 reps" },
+                    { id: "tue_4", name: "Bicep Curl", sets: 3, target: "12 reps" },
+                    { id: "tue_5", name: "Hammer Curl", sets: 3, target: "12 reps" }
+                ]
+            },
+            wed: {
+                title: "Day 3 – Legs + Abs",
+                subtitle: "Wednesday Workout",
+                exercises: [
+                    { id: "wed_1", name: "Squats (or Leg Press)", sets: 4, target: "10 reps" },
+                    { id: "wed_2", name: "Lunges", sets: 3, target: "12 reps" },
+                    { id: "wed_3", name: "Leg Extension", sets: 3, target: "15 reps" },
+                    { id: "wed_4", name: "Hamstring Curl", sets: 3, target: "15 reps" },
+                    { id: "wed_5", name: "Calf Raises", sets: 3, target: "20 reps" },
+                    { id: "wed_6", name: "Plank", sets: 2, target: "45 sec" },
+                    { id: "wed_7", name: "Leg Raises", sets: 2, target: "15 reps" }
+                ]
+            },
+            thu: {
+                title: "Day 4 – Shoulders + Abs",
+                subtitle: "Thursday Workout",
+                exercises: [
+                    { id: "thu_1", name: "Overhead Press", sets: 4, target: "8–10 reps" },
+                    { id: "thu_2", name: "Lateral Raise", sets: 3, target: "12 reps" },
+                    { id: "thu_3", name: "Front Raise", sets: 3, target: "12 reps" },
+                    { id: "thu_4", name: "Shrugs", sets: 3, target: "12 reps" },
+                    { id: "thu_5", name: "Cable Crunch", sets: 2, target: "15 reps" }
+                ]
+            },
+            fri: {
+                title: "Day 5 – Cardio",
+                subtitle: "Friday Workout",
+                exercises: [
+                    { id: "fri_1", name: "Treadmill", sets: 1, target: "30 min" },
+                    { id: "fri_2", name: "Cycle", sets: 1, target: "15 min" }
+                ]
+            },
+            sat: {
+                title: "Day 6 – Core + Functional",
+                subtitle: "Saturday Workout",
+                exercises: [
+                    { id: "sat_1", name: "Leg Raise", sets: 3, target: "12 reps" },
+                    { id: "sat_2", name: "Crunches", sets: 3, target: "30 reps" },
+                    { id: "sat_3", name: "Side Twist (with plates)", sets: 3, target: "15 each side" },
+                    { id: "sat_4", name: "Jumping Jacks", sets: 3, target: "100 reps" },
+                    { id: "sat_5", name: "High Knees", sets: 3, target: "150 reps" },
+                    { id: "sat_6", name: "Mountain Climbers", sets: 3, target: "200 reps" }
+                ]
+            },
+            sun: {
+                title: "Day 7 – Rest Day",
+                subtitle: "Sunday Active Recovery",
+                exercises: [
+                    { id: "sun_1", name: "Stretching / Foam Rolling", sets: 1, target: "15-20 min" },
+                    { id: "sun_2", name: "Light Walk", sets: 1, target: "20-30 min" }
+                ]
+            }
+        };
+
+        let activeDay = 'mon';
+        let timerInterval = null;
+        let timerSeconds = 0;
+
+        function init() {
+            // Auto select current day of the week
+            const dayMap = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+            const today = dayMap[new Date().getDay()];
+            activeDay = today;
+
+            renderTabs();
+            renderContent();
+            updateProgress();
+        }
+
+        function switchDay(day) {
+            activeDay = day;
+            renderTabs();
+            renderContent();
+        }
+
+        function renderTabs() {
+            const days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+            days.forEach(d => {
+                const btn = document.getElementById(`tab-${d}`);
+                if (d === activeDay) {
+                    btn.className = "day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-green-500 bg-green-950/40 text-green-400 font-bold transition flex flex-col items-center shadow-lg shadow-green-950/50";
+                } else {
+                    btn.className = "day-tab flex-1 min-w-[75px] py-2.5 px-3 rounded-xl border border-gray-800 bg-gray-900/50 hover:bg-gray-800 text-gray-400 font-medium transition flex flex-col items-center";
+                }
+            });
+        }
+
+        function renderContent() {
+            const data = workoutData[activeDay];
+            document.getElementById('currentDayTitle').innerText = data.title;
+            document.getElementById('currentDaySubtitle').innerText = data.subtitle;
+
+            const container = document.getElementById('exerciseList');
+            container.innerHTML = '';
+
+            data.exercises.forEach(ex => {
+                const isChecked = localStorage.getItem(`chk_${ex.id}`) === 'true';
+                const savedWeight = localStorage.getItem(`wt_${ex.id}`) || '';
+
+                const card = document.createElement('div');
+                card.className = `bg-gray-900 border rounded-2xl p-4 transition-all duration-200 ${isChecked ? 'border-green-800/60 bg-gray-900/40 opacity-80' : 'border-gray-800'}`;
+
+                let setsMarkup = '';
+                for (let i = 1; i <= ex.sets; i++) {
+                    const setKey = `set_${ex.id}_${i}`;
+                    const setChecked = localStorage.getItem(setKey) === 'true';
+                    setsMarkup += `
+                        <button onclick="toggleSet('${setKey}', '${ex.id}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold border transition ${setChecked ? 'bg-green-600 border-green-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}">
+                            Set ${i}
+                        </button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 flex-1">
+                            <input type="checkbox" id="chk_${ex.id}" ${isChecked ? 'checked' : ''} onchange="toggleExercise('${ex.id}')" 
+                                class="mt-1 w-5 h-5 rounded border-gray-700 text-green-500 focus:ring-green-500 focus:ring-offset-gray-900 bg-gray-800 cursor-pointer">
+                            <div>
+                                <h3 class="font-bold text-gray-100 ${isChecked ? 'line-through text-gray-500' : ''}">${ex.name}</h3>
+                                <div class="flex items-center gap-2 mt-1 text-xs text-gray-400">
+                                    <span class="bg-gray-800 px-2 py-0.5 rounded border border-gray-700 font-medium text-green-400">${ex.sets} Sets</span>
+                                    <span>•</span>
+                                    <span>Target: ${ex.target}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-3 border-t border-gray-800/80 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            ${setsMarkup}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="wt_${ex.id}" value="${savedWeight}" placeholder="kg" onchange="saveWeight('${ex.id}')"
+                                class="w-16 bg-gray-800 border border-gray-700 rounded-lg px-2 py-1 text-xs text-center font-mono focus:outline-none focus:border-green-500 text-white">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleExercise(id) {
+            const chk = document.getElementById(`chk_${id}`);
+            localStorage.setItem(`chk_${id}`, chk.checked);
+
+            // Toggle all sets of this exercise
+            const exData = findExerciseData(id);
+            if (exData) {
+                for (let i = 1; i <= exData.sets; i++) {
+                    localStorage.setItem(`set_${id}_${i}`, chk.checked);
+                }
+            }
+
+            renderContent();
+            updateProgress();
+        }
+
+        function toggleSet(setKey, exId) {
+            const current = localStorage.getItem(setKey) === 'true';
+            localStorage.setItem(setKey, !current);
+
+            // Check if all sets completed
+            const exData = findExerciseData(exId);
+            if (exData) {
+                let allChecked = true;
+                for (let i = 1; i <= exData.sets; i++) {
+                    if (localStorage.getItem(`set_${exId}_${i}`) !== 'true') {
+                        allChecked = false;
+                        break;
+                    }
+                }
+                localStorage.setItem(`chk_${exId}`, allChecked);
+            }
+
+            renderContent();
+            updateProgress();
+        }
+
+        function saveWeight(id) {
+            const val = document.getElementById(`wt_${id}`).value;
+            localStorage.setItem(`wt_${id}`, val);
+        }
+
+        function findExerciseData(id) {
+            for (let day in workoutData) {
+                const found = workoutData[day].exercises.find(e => e.id === id);
+                if (found) return found;
+            }
+            return null;
+        }
+
+        function updateProgress() {
+            let totalExercises = 0;
+            let completedExercises = 0;
+
+            for (let day in workoutData) {
+                workoutData[day].exercises.forEach(ex => {
+                    totalExercises++;
+                    if (localStorage.getItem(`chk_${ex.id}`) === 'true') {
+                        completedExercises++;
+                    }
+                });
+            }
+
+            const percent = totalExercises > 0 ? Math.round((completedExercises / totalExercises) * 100) : 0;
+            document.getElementById('overallPercentage').innerText = `${percent}%`;
+            document.getElementById('overallProgressBar').style.width = `${percent}%`;
+        }
+
+        function resetCurrentDay() {
+            if (confirm("Kya aap aaj ki sabhi exercises reset karna chahte hain?")) {
+                workoutData[activeDay].exercises.forEach(ex => {
+                    localStorage.removeItem(`chk_${ex.id}`);
+                    localStorage.removeItem(`wt_${ex.id}`);
+                    for (let i = 1; i <= ex.sets; i++) {
+                        localStorage.removeItem(`set_${ex.id}_${i}`);
+                    }
+                });
+                renderContent();
+                updateProgress();
+            }
+        }
+
+        function resetAllDays() {
+            if (confirm("⚠️ CAUTION: Yeh poore hafte ka sabhi workout data delete kar dega. Continue karein?")) {
+                localStorage.clear();
+                renderContent();
+                updateProgress();
+            }
+        }
+
+        // Timer Logic
+        function openTimerModal() {
+            document.getElementById('timerModal').classList.remove('hidden');
+        }
+
+        function closeTimerModal() {
+            document.getElementById('timerModal').classList.add('hidden');
+        }
+
+        function startPresetTimer(seconds) {
+            stopTimer();
+            timerSeconds = seconds;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                updateTimerDisplay();
+
+                if (timerSeconds <= 0) {
+                    stopTimer();
+                    alert("⏰ Rest Time Over! Next Set Start Karo!");
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerSeconds = 0;
+            updateTimerDisplay();
+        }
+
+        function updateTimerDisplay() {
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+            const s = String(timerSeconds % 60).padStart(2, '0');
+            const text = `${m}:${s}`;
+            document.getElementById('timerClock').innerText = text;
+            document.getElementById('timerDisplayNav').innerText = timerSeconds > 0 ? text : 'Rest Timer';
+        }
+
+        // Initialize on Load
+        window.onload = init;
+    </script>
+</body>
+</html>
